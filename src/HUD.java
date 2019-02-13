@@ -21,10 +21,13 @@ public class HUD extends Application {
 	private NetworkTableEntry _endAnglesEntry;
 	private NetworkTableEntry _currAnglesEntry;
 	private NetworkTableEntry _constantMeasurementsEntry;
+	private NetworkTableEntry _handStateEntry;
 	
 	private double[] _endArmAngles = {0.0, 0.0, 0.0};
 	private double[] _currArmAngles = {0.0, 0.0, 0.0};
 	private double[] _armMeasurements = {0.0, 0.0, 0.0};
+	
+	private String _handState;
 
 	public static void main(String[] args) {
 		launch(args);
@@ -116,6 +119,7 @@ public class HUD extends Application {
 		_endAnglesEntry = armFeed.getEntry("endAngles");
 		_currAnglesEntry = armFeed.getEntry("currentAngles");
 		_constantMeasurementsEntry = armFeed.getEntry("measurements");
+		_handStateEntry = armFeed.getEntry("currentHandState");
 		
 		double[] anglesArray = {0.0, 0.0, 0.0};
 		double[] measurementsArray = {0.0, 0.0, 0.0}; 
@@ -124,6 +128,7 @@ public class HUD extends Application {
 			_endArmAngles = _endAnglesEntry.getDoubleArray(anglesArray);
 			_currArmAngles = _currAnglesEntry.getDoubleArray(anglesArray);
 			_armMeasurements = _constantMeasurementsEntry.getDoubleArray(measurementsArray);
+			_handState = _handStateEntry.getString("");
 		}
 	}
 	
@@ -134,6 +139,7 @@ public class HUD extends Application {
 		gc.fillText("End Arm Angles = (Shoulder: " + _endArmAngles[0] + ", Elbow: " + _endArmAngles[1] +  ", wrist: " + _endArmAngles[2] + ")", 10, 10);
 		gc.fillText("Current Arm Angles = (Shoulder: " + _currArmAngles[0] + ", Elbow: " + _currArmAngles[1] +  ", wrist: " + _currArmAngles[2] + ")", 10, 25);
 		gc.fillText("Arm Measurements = (Shoulder: " + _armMeasurements[0] + ", Elbow: " + _armMeasurements[1] +  ", wrist: " + _armMeasurements[2] + ")", 10, 40);
+		gc.fillText("Current handstate: " + _handState, 10, 55);
 	}
 
 }
