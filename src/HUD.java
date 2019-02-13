@@ -1,3 +1,5 @@
+import java.awt.Rectangle;
+
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -16,10 +18,12 @@ public class HUD extends Application {
 	
 	private final double _scale = 4.0;
 	
-	private NetworkTableEntry _anglesEntry;
+	private NetworkTableEntry _endAnglesEntry;
+	private NetworkTableEntry _currAnglesEntry;
 	private NetworkTableEntry _constantMeasurementsEntry;
 	
-	private double[] _armAngles = {0.0, 0.0, 0.0};
+	private double[] _endArmAngles = {0.0, 0.0, 0.0};
+	private double[] _currArmAngles = {0.0, 0.0, 0.0};
 	private double[] _armMeasurements = {0.0, 0.0, 0.0};
 
 	public static void main(String[] args) {
@@ -31,6 +35,7 @@ public class HUD extends Application {
 		primaryStage.setTitle("Robotic Arm HUB");
 		
 		Group root = new Group();
+		root.setId("pane");
 		Scene scene = new Scene(root, 800, 600, Color.rgb(255, 255, 255));
 		
 		Canvas canvas = new Canvas();
@@ -59,26 +64,45 @@ public class HUD extends Application {
 		
 		root.getChildren().add(canvas);
 		
+		//primaryStage.getScene().getStylesheets().add(HUD.class.getResource("style.css").toExternalForm());
 		primaryStage.setScene(scene);
 		primaryStage.show();
 	    
 		
 	}
+	
     private void drawRobotArm(GraphicsContext gc) {
     	gc.setLineWidth(2);
     	gc.setLineCap(StrokeLineCap.ROUND);
-    	gc.setFill(Color.rgb(33, 33, 33));
+    	gc.setStroke(Color.rgb(255, 00, 00));
 
+    	gc.save();
     	gc.rotate(-90);
     	gc.beginPath();
     	gc.moveTo(0, 0);
-    	gc.rotate(_armAngles[0]);
+    	gc.rotate(_endArmAngles[0]);
     	gc.lineTo(_armMeasurements[0] * _scale, 0);
     	gc.translate(_armMeasurements[0] * _scale, 0);
-    	gc.rotate(_armAngles[1]);
+    	gc.rotate(_endArmAngles[1]);
     	gc.lineTo(_armMeasurements[1] * _scale, 0);
     	gc.translate(_armMeasurements[1] * _scale, 0);
-    	gc.rotate(_armAngles[2]);
+    	gc.rotate(_endArmAngles[2]);
+    	gc.lineTo(_armMeasurements[2] * _scale, 0);
+    	gc.translate(_armMeasurements[2] * _scale, 0);
+    	gc.stroke();
+    	gc.restore();
+    	
+    	gc.setStroke(Color.rgb(33, 33, 33));
+    	gc.rotate(-90);
+    	gc.beginPath();
+    	gc.moveTo(0, 0);
+    	gc.rotate(_currArmAngles[0]);
+    	gc.lineTo(_armMeasurements[0] * _scale, 0);
+    	gc.translate(_armMeasurements[0] * _scale, 0);
+    	gc.rotate(_currArmAngles[1]);
+    	gc.lineTo(_armMeasurements[1] * _scale, 0);
+    	gc.translate(_armMeasurements[1] * _scale, 0);
+    	gc.rotate(_currArmAngles[2]);
     	gc.lineTo(_armMeasurements[2] * _scale, 0);
     	gc.translate(_armMeasurements[2] * _scale, 0);
     	gc.stroke();
@@ -89,14 +113,16 @@ public class HUD extends Application {
 		NetworkTableInstance.getDefault().startDSClient();
 		NetworkTable armFeed = NetworkTableInstance.getDefault().getTable("robotArmFeed");
 
-		_anglesEntry = armFeed.getEntry("angles");
+		_endAnglesEntry = armFeed.getEntry("endAngles");
+		_currAnglesEntry = armFeed.getEntry("currentAngles");
 		_constantMeasurementsEntry = armFeed.getEntry("measurements");
 		
 		double[] anglesArray = {0.0, 0.0, 0.0};
 		double[] measurementsArray = {0.0, 0.0, 0.0}; 
 		
-		if(_anglesEntry != null) {
-			_armAngles = _anglesEntry.getDoubleArray(anglesArray);
+		if(_endAnglesEntry != null) {
+			_endArmAngles = _endAnglesEntry.getDoubleArray(anglesArray);
+			_currArmAngles = _currAnglesEntry.getDoubleArray(anglesArray);
 			_armMeasurements = _constantMeasurementsEntry.getDoubleArray(measurementsArray);
 		}
 	}
@@ -105,8 +131,9 @@ public class HUD extends Application {
 		gc.setLineWidth(2.0);
 		gc.setLineCap(StrokeLineCap.ROUND);
 		gc.setFill(Color.rgb(33, 33, 33));
-		gc.fillText("Arm Angles = (Shoulder: " + _armAngles[0] + ", Elbow: " + _armAngles[1] +  ", wrist: " + _armAngles[2] + ")", 10, 10);
-		gc.fillText("Arm Measurements = (Shoulder: " + _armMeasurements[0] + ", Elbow: " + _armMeasurements[1] +  ", wrist: " + _armMeasurements[2] + ")", 10, 25);
+		gc.fillText("End Arm Angles = (Shoulder: " + _endArmAngles[0] + ", Elbow: " + _endArmAngles[1] +  ", wrist: " + _endArmAngles[2] + ")", 10, 10);
+		gc.fillText("Current Arm Angles = (Shoulder: " + _currArmAngles[0] + ", Elbow: " + _currArmAngles[1] +  ", wrist: " + _currArmAngles[2] + ")", 10, 25);
+		gc.fillText("Arm Measurements = (Shoulder: " + _armMeasurements[0] + ", Elbow: " + _armMeasurements[1] +  ", wrist: " + _armMeasurements[2] + ")", 10, 40);
 	}
 
 }
