@@ -1,4 +1,5 @@
 import java.awt.Rectangle;
+import java.io.FileInputStream;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -13,6 +14,7 @@ import javafx.stage.Stage;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.text.Text;
+import javafx.scene.image.*;
 
 public class HUD extends Application {
 	
@@ -28,6 +30,7 @@ public class HUD extends Application {
 	private double[] _armMeasurements = {0.0, 0.0, 0.0};
 	
 	private String _handState;
+	
 
 	public static void main(String[] args) {
 		launch(args);
@@ -44,7 +47,7 @@ public class HUD extends Application {
 		Canvas canvas = new Canvas();
 		canvas.widthProperty().bind(primaryStage.widthProperty());
 		canvas.heightProperty().bind(primaryStage.heightProperty());
-	    
+			    
 		final GraphicsContext gc = canvas.getGraphicsContext2D();
 		new AnimationTimer() {
 			@Override
@@ -58,7 +61,9 @@ public class HUD extends Application {
 		    	gc.save();
 		    	
 		    	drawRobotArm(gc);
-		    	
+		    	gc.restore();
+		    	gc.save();
+		    	drawStaticObjects(gc);
 		    	gc.restore();
 		    	gc.translate(-drawCenterX, -drawCenterY);
 				drawInfo(gc);
@@ -110,6 +115,18 @@ public class HUD extends Application {
     	gc.translate(_armMeasurements[2] * _scale, 0);
     	gc.stroke();
     }
+    private void drawStaticObjects(GraphicsContext gc) {
+    	gc.setStroke(Color.rgb(33, 33, 33));
+    	gc.beginPath();
+    	gc.moveTo(0, 0);
+    	gc.lineTo(0, 21 * _scale);
+    	gc.stroke();
+    	
+    	gc.translate(0, 21 * _scale);
+    	gc.fillRect(-8 * _scale, 0,  31.75 * _scale, 5 * _scale);
+    }
+    
+   
 	
 	private void updateInfoFromRobot() {
 		NetworkTableInstance.getDefault().startClientTeam(4711);
@@ -140,6 +157,33 @@ public class HUD extends Application {
 		gc.fillText("Current Arm Angles = (Shoulder: " + _currArmAngles[0] + ", Elbow: " + _currArmAngles[1] +  ", wrist: " + _currArmAngles[2] + ")", 10, 25);
 		gc.fillText("Arm Measurements = (Shoulder: " + _armMeasurements[0] + ", Elbow: " + _armMeasurements[1] +  ", wrist: " + _armMeasurements[2] + ")", 10, 40);
 		gc.fillText("Current handstate: " + _handState, 10, 55);
+		switch(_handState){
+			case "LOCKED": 
+				gc.fillText("RB - Switch to PICKUP state", 10, 85);
+				gc.fillText("LB - Switch to PLACE state", 10, 100);
+				gc.fillText("A - Forward Shoulder", 10, 115);
+				gc.fillText("B - Forward Elbow ", 10, 130);
+				gc.fillText("Y - Forward Wrist",10, 145);
+				gc.fillText("X - Get up on step", 10, 160);
+				gc.fillText("Arrow Down - Backward Shoulder", 10, 175);
+				gc.fillText("Arrow Left - Backward Elbow", 10, 190);
+				gc.fillText("Arrow Up - Backward Wrist", 10, 205);
+				gc.fillText("Arrow Right - Arm reset/home", 10, 220);
+				break;
+				
+			case "PICKUP":
+				gc.fillText("RB - Switch to PLACE state", 10, 85);
+				gc.fillText("LB - Switch to LOCKED state", 10, 100);
+				gc.fillText("X - Pickup", 10, 115);
+				break;
+				
+			case "PLACE":
+				gc.fillText("RB - Switch to LOCKED state", 10, 85);
+				gc.fillText("LB - Switch to PICKUP state", 10, 100);
+				gc.fillText("A - Move to lowest position", 10, 115);
+				gc.fillText("B - Move to middle position", 10, 130);
+				gc.fillText("Y - Move to highest positon", 10, 145);
+				break;
+		}
 	}
-
 }
