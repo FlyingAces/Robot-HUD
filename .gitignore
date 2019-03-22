@@ -1,0 +1,8 @@
+#Editor garbage
+*.vscode/
+
+#Project garbage
+bin/*
+deploy/*
+desktop.ini
+*.classpath
